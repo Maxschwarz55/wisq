@@ -82,7 +82,7 @@ def map_and_route(
         map, steps = run_dascot(circ, gates, arch, output_path, timeout)
     elif mode == "sat":
         map, steps = run_sat_scmr(circ, gates, arch, output_path, timeout)
-    dump(arch, map, steps, id_to_op, output_path)
+    dump(arch, map, steps, id_to_op, output_path, gates)
 
 
 def optimize(
