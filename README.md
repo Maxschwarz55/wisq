@@ -55,8 +55,7 @@ The table below summarizes the compiler modes.
 | `--mode full_ft` (or no mode specified) | optimization + mapping/routing        | QASM     | JSON  |
 
 ## Mapping and Routing Output Format
-In modes that apply mapping and routing, the resulting JSON object has two keys: "map", representing the qubit map and "steps", which is a list of time steps. Each
-step is a list of parallel gates and the paths along which they are routed. 
+In modes that apply mapping and routing, the resulting JSON object has four keys: "map", representing the qubit map; "steps", which is a list of time steps; "arch", representing the architecture of the hardware; and "gates", which is a list of the gates from the circuit. Each step is a list of parallel gates and the paths along which they are routed. 
 
 ## Example commands
 wisq includes an array of additional configuration options which can be viewed with the `wisq --help` command. Below we provide a few examples to highlight some of these options. 
