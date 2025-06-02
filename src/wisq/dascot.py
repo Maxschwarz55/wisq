@@ -39,11 +39,12 @@ def extract_qubits_from_gates(gate_list):
     return qubits
 
 
-def dump(arch, map, steps, id_to_op, output_path):
+def dump(arch, map, steps, id_to_op, output_path, gates):
     output = {}
     output["map"] = {k: v for k, v in map}
     output["steps"] = [label_step(id_to_op, step) for step in steps]
     output["arch"] = arch
+    output["gates"] = gates
     with open(output_path, "w") as f:
         json.dump(output, f, indent=4)
 
