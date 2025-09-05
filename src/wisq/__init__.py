@@ -14,11 +14,6 @@ from .utils import create_scratch_dir
 import os
 import shutil
 import json
-import time
-import inspect
-import multiprocessing
-from termcolor import colored
-from tqdm import tqdm
 
 
 OPT_MODE = "opt"
@@ -52,49 +47,7 @@ class Guoq_Help_Action(argparse.Action):
         print_help()
         parser.exit()
 
-def pbar(desc="Running", unit="s"):
-    """
-    Decorator that wraps a function so it runs in a separate process with a progress bar.
-    The timeout value is taken from the function's 'timeout' argument at call-time.
-    """
-    def decorator(func):
-        sig = inspect.signature(func)
 
-        def wrapper(*args, **kwargs):
-            # Bind args/kwargs to the function signature so we can extract "timeout"
-            bound = sig.bind(*args, **kwargs)
-            bound.apply_defaults()
-            timeout = bound.arguments["timeout"]
-
-            done = multiprocessing.Event()
-
-            def runner():
-                try:
-                    func(*args, **kwargs)
-                finally:
-                    done.set()
-
-            process = multiprocessing.Process(target=runner)
-            process.start()
-
-            custom_format = "{l_bar}{bar} [{n_fmt}/{total_fmt}s]"
-            with tqdm(total=timeout, desc=desc, unit=unit,
-                      bar_format=custom_format) as pbar:
-                elapsed = 0
-                while not done.is_set() and elapsed < timeout:
-                    time.sleep(1)
-                    elapsed += 1
-                    pbar.update(1)
-
-                if elapsed < timeout:
-                    pbar.update(timeout - elapsed)
-
-            process.join()
-        return wrapper
-    return decorator
-
-
-@pbar(desc="Mapping and Routing")
 def map_and_route(
     input_path: str, arch_name: str, output_path: str, timeout: int, mode="dascot"
 ):
@@ -132,7 +85,6 @@ def map_and_route(
     dump(arch, map, steps, id_to_op, output_path, gates)
 
 
-@pbar(desc="Optimizing")
 def optimize(
     input_path: str,
     output_path: str,
@@ -169,6 +121,7 @@ def optimize(
         path_to_synthetiq=path_to_synthetiq,
     )
 
+
 def compile_fault_tolerant(
     input_path,
     output_path,
@@ -192,9 +145,8 @@ def compile_fault_tolerant(
             scratch_dir_path, "after_guoq.qasm"
         )
         print(
-            colored(f"Decomposing to Clifford + T (if needed) and optimizing the input circuit with a timeout of {opt_timeout} seconds...", "blue"
-        ))
-
+            f"Decomposing to Clifford + T (if needed) and optimizing the input circuit with a timeout of {opt_timeout} seconds..."
+        )
         optimize(
             input_path,
             transpiled_and_optimized_path,
@@ -205,9 +157,9 @@ def compile_fault_tolerant(
             verbose=verbose,
             path_to_synthetiq=path_to_synthetiq,
         )
-        print(colored(
-            f"Done optimizing. Mapping and routing the optimized circuit with a timeout of {mr_timeout} seconds...", "green"))
- 
+        print(
+            f"Done optimizing. Mapping and routing the optimized circuit with a timeout of {mr_timeout} seconds..."
+        )
         map_and_route(
             transpiled_and_optimized_path,
             arch_name,
@@ -220,32 +172,10 @@ def compile_fault_tolerant(
             shutil.rmtree(scratch_dir_path)
 
 
-ascii_art = r"""
-         .%.%%%.%.
-         %        %%
-         %          .%%%
-       :%.                +=%%
-      %.                      @.
-       %.                     %%.      __      _(_)___  __ _
-      ..                       %.#%.   \ \ /\ / / / __|/ _` |
-      %.                      %+%-+     \ V  V /| \__ \ (_| |
-      :%                      %+ *       \_/\_/ |_|___/\__, |
-         @%.                    %.                        |_|
-           %.                   %
-              %                =.
-              %.               %.
-              %+               #
-              %.               %.
-               %                -
-                 %%%%%%%%%%%%%%%.
-
-"""
-
 def main():
     parser = argparse.ArgumentParser(
         prog="wisq",
-        description=ascii_art + r"""A compiler for quantum circuits. Optimize your circuits and/or map them to a surface code architecture. See README for example usage and documentation.""",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description="A compiler for quantum circuits. Optimize your circuits and/or map them to a surface code architecture. See README for example usage and documentation.",
     )
     opt = parser.add_argument_group(title="optimization config")
     scmr = parser.add_argument_group(title="mapping and routing config")
