@@ -109,12 +109,18 @@ def build_crit_dict(gates):
         crit_path = max(depths.get(q,0) for q in qubits)
         crit_dict[id] = crit_path
     return crit_dict
-def build_crit_dict_fast(gates):
-    crit_dict ={}
-    for id,qubits in gates.items():
-        depths = get_depth_by_qubit_p(id, gates)
-        crit_path = max(depths.get(q,0) for q in qubits)
-        crit_dict[id] = crit_path
+def build_crit_dict_fast(gates: list[int])->dict[int,int]:
+    crit_dict: dict[int,int] = {}
+    last_id_per_qubit: dict[int,int] = {}
+    for id,gate in reversed(list(enumerate(gates))):
+        max_crit = 1
+        for qubit in gate:
+            if qubit not in last_id_per_qubit:
+                continue
+            max_crit = max(max_crit, crit_dict[last_id_per_qubit[qubit]]+1)
+        for qubit in gate:
+            crit_dict[id] = max_crit
+            last_id_per_qubit[qubit] = id
     return crit_dict
 
 def dependent(step, remaining_gates):
@@ -218,7 +224,7 @@ def sim_anneal_route(gates, arch, mapping, temperature, cooling_rate, terminatio
     gates_id_table = { i : gate for i,gate, in enumerate(gates)}
     crit_dict = {}
     if temperature > termination_temp:
-        crit_dict = build_crit_dict_fast(gates_id_table)
+        crit_dict = build_crit_dict_fast(gates)
     tried_steps = 0
     while len(gates_id_table) != 0:
         executable, remaining = executable_subset(gates_id_table)
