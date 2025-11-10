@@ -27,7 +27,6 @@ DEFAULT_EXT = {
     SCMR_MODE: "json",
 }
 
-
 class Guoq_Help_Action(argparse.Action):
     def __init__(
         self,
@@ -266,42 +265,42 @@ def main():
     )
     scmr.add_argument(
         "--init_mapping_temp",
-        "--imt",
+        "-imt",
         type=float,
         help="integer representing simulated annealing initial temperature for mapping (default: 100)",
         default=100,
     )
     scmr.add_argument(
         "--init_routing_temp",
-        "--irt",
+        "-irt",
         type=float,
         help="integer representing simulated annealing initial temperature for routing (default: 100)",
         default=100,
     )
     scmr.add_argument(
         "--term_mapping_temp",
-        "--tmt",
+        "-tmt",
         type=float,
         help="integer representing simulated annealing termination temperature for mapping (default: 0.1)",
         default=0.1,
     )
     scmr.add_argument(
         "--term_routing_temp",
-        "--trt",
+        "-trt",
         type=float,
         help="integer representing simulated annealing termination temperature for routing (default: 0.1)",
         default=0.1,
     )
     scmr.add_argument(
         "--mapping_cooling_rate",
-        "--mcr",
+        "-mcr",
         type=float,
         help="integer representing simulated annealing cooling rate for mapping (default: 0.5)",
         default=0.5,
     )
     scmr.add_argument(
         "--routing_cooling_rate",
-        "--rcr",
+        "-rcr",
         type=float,
         help="integer representing simulated annealing cooling rate for routing (default: 0.5)",
         default=0.5,
